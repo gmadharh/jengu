@@ -39,7 +39,7 @@ export function AuthButton() {
     // Unauthenticated state: displays the GitHub login button
     return (
         <button
-            onClick={() => signIn("github")}
+            onClick={() => signIn("github", undefined, { prompt: "consent" })}
             className="group bg-white hover:bg-zinc-200 text-black text-sm font-medium py-2 px-5 rounded-full transition-all shadow-sm flex items-center gap-2"
         >
             <svg
