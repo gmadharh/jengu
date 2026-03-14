@@ -6,7 +6,11 @@ import Vapi from "@vapi-ai/web";
 
 const vapi = new Vapi(process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || "");
 
-export function VoiceAgent() {
+export type VoiceAgentProps = {
+    onUiPayload?: (type: string, data: any) => void;
+};
+
+export function VoiceAgent({ onUiPayload }: VoiceAgentProps) {
     const { data: session } = useSession();
     const [isCallActive, setIsCallActive] = useState(false);
     const [hasError, setHasError] = useState(false);
@@ -41,8 +45,34 @@ export function VoiceAgent() {
             setVolumeLevel(volume);
         });
 
+        // Intercept messages from the AI backend
+        vapi.on("message", (message) => {
+            if (message.type === "tool-calls") {
+                const toolCall = message.toolWithToolCallList?.[0]?.toolCall;
+                if (toolCall?.function?.name === "render_ui") {
+                    try {
+                        // The backend is instructing the UI to render something
+                        const args = typeof toolCall.function.arguments === "string" 
+                            ? JSON.parse(toolCall.function.arguments) 
+                            : toolCall.function.arguments;
+                        
+                        if (onUiPayload && args.type && args.data) {
+                            onUiPayload(args.type, args.data);
+                        }
+                    } catch (err) {
+                        console.error("Failed to parse render_ui arguments:", err);
+                    }
+                }
+            } else if (message.type === "custom-message") {
+                // Alternative intercept: if Dev B sends a custom payload directly
+                if (onUiPayload && message.message?.ui_type && message.message?.ui_data) {
+                    onUiPayload(message.message.ui_type, message.message.ui_data);
+                }
+            }
+        });
+
         vapiRegisteredRef.current = true;
-    }, []);
+    }, [onUiPayload]);
 
     const toggleCall = async () => {
         if (isCallActive) {
