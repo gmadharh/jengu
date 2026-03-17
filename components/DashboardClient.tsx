@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { VoiceAgent } from "@/components/VoiceAgent";
 import { RepoTable, RepoData } from "@/components/RepoTable";
 import { LanguageBarChart, ChartData } from "@/components/LanguageBarChart";
@@ -12,29 +12,37 @@ type UiPayload = {
 
 export function DashboardClient() {
     const [uiPayload, setUiPayload] = useState<UiPayload>({ type: null, data: null });
+    const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const handleUiPayload = (type: string, data: any) => {
-        console.log("Received UI Payload from Vapi:", type, data);
+        console.log("Received UI Payload:", type, data);
         if (type === "table" || type === "chart") {
             setUiPayload({ type, data });
         }
     };
 
-    const runMockTableTest = () => {
-        handleUiPayload("table", [
-            { id: "1", name: "vercel/next.js", description: "The React Framework", stars: 125032, language: "TypeScript", openIssues: 2154, pullRequests: 184 },
-            { id: "2", name: "facebook/react", description: "Library for UI", stars: 221584, language: "JavaScript", openIssues: 1450, pullRequests: 312 },
-            { id: "3", name: "vuejs/core", description: "Vue.js is a progressive UI framework", stars: 45210, language: "TypeScript", openIssues: 320, pullRequests: 45 }
-        ]);
-    };
+    // Poll /api/ui-data every 2 seconds to pick up backend-generated payloads
+    useEffect(() => {
+        pollingRef.current = setInterval(async () => {
+            try {
+                const res = await fetch("/api/ui-data");
+                const payload = await res.json();
+                if (payload && payload.type) {
+                    console.log("Polled UI data:", payload.type);
+                    handleUiPayload(payload.type, payload.data);
+                }
+            } catch {
+                // silently ignore fetch errors
+            }
+        }, 5000);
 
-    const runMockChartTest = () => {
-        handleUiPayload("chart", [
-            { name: "TypeScript", value: 65, color: "#3178c6" },
-            { name: "JavaScript", value: 20, color: "#f7df1e" },
-            { name: "Python", value: 10, color: "#3776ab" },
-            { name: "CSS", value: 5, color: "#1572B6" }
-        ]);
+        return () => {
+            if (pollingRef.current) clearInterval(pollingRef.current);
+        };
+    }, []);
+
+    const clearView = () => {
+        setUiPayload({ type: null, data: null });
     };
 
     return (
@@ -45,11 +53,10 @@ export function DashboardClient() {
                 <h2 className="text-sm font-medium mb-8 text-zinc-400 uppercase tracking-widest text-center">Voice Agent</h2>
                 <VoiceAgent onUiPayload={handleUiPayload} />
 
-                {/* TEMPORARY TEST BUTTONS */}
-                <div className="absolute bottom-4 flex gap-2">
-                    <button onClick={runMockTableTest} className="text-[10px] bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded text-zinc-300 transition-colors">Test Table</button>
-                    <button onClick={runMockChartTest} className="text-[10px] bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded text-zinc-300 transition-colors">Test Chart</button>
-                    <button onClick={() => setUiPayload({ type: null, data: null })} className="text-[10px] bg-red-900/30 hover:bg-red-900/50 text-red-400 px-2 py-1 rounded transition-colors">Reset</button>
+                <div className="absolute top-4 right-4 focus:outline-none">
+                    <button onClick={clearView} className="text-[10px] bg-zinc-800/80 hover:bg-zinc-700 px-2 py-1 rounded text-zinc-400 transition-colors border border-zinc-700/50">
+                        Clear View
+                    </button>
                 </div>
             </div>
 

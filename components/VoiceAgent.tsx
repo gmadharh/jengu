@@ -47,11 +47,11 @@ export function VoiceAgent({ onUiPayload }: VoiceAgentProps) {
 
         // Intercept messages from the AI backend
         vapi.on("message", (message) => {
+            // Strategy 1: Look for tool-calls (legacy/future path)
             if (message.type === "tool-calls") {
                 const toolCall = message.toolWithToolCallList?.[0]?.toolCall;
                 if (toolCall?.function?.name === "render_ui") {
                     try {
-                        // The backend is instructing the UI to render something
                         const args = typeof toolCall.function.arguments === "string" 
                             ? JSON.parse(toolCall.function.arguments) 
                             : toolCall.function.arguments;
@@ -63,8 +63,9 @@ export function VoiceAgent({ onUiPayload }: VoiceAgentProps) {
                         console.error("Failed to parse render_ui arguments:", err);
                     }
                 }
-            } else if (message.type === "custom-message") {
-                // Alternative intercept: if Dev B sends a custom payload directly
+            } 
+            // Strategy 2: Custom message fallback  
+            else if (message.type === "custom-message") {
                 if (onUiPayload && message.message?.ui_type && message.message?.ui_data) {
                     onUiPayload(message.message.ui_type, message.message.ui_data);
                 }
