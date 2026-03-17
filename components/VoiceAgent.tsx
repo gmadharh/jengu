@@ -40,15 +40,19 @@ export function VoiceAgent({ onUiPayload }: VoiceAgentProps) {
             
             setIsCallActive(false);
             setVolumeLevel(0);
-            setHasError(true);
 
             // Provide human-readable specific errors if possible
             if (rawErrorMsg.toLowerCase().includes("microphone") || rawErrorMsg.toLowerCase().includes("permission")) {
+                setHasError(true);
                 setErrorMessage("Microphone access denied. Please allow microphone permissions in your browser.");
             } else if (rawErrorMsg.toLowerCase().includes("not found")) {
+                setHasError(true);
                 setErrorMessage("Assistant not found. Check your VAPI configuration.");
             } else {
-                setErrorMessage("Connection failed. Jengu might be temporarily unavailable.");
+                // Keep the error in console, but do not show "Connection failed" in the UI 
+                // since this often fires when manually stopping the call
+                setHasError(false);
+                setErrorMessage("");
             }
         });
 
