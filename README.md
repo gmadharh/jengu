@@ -1,6 +1,6 @@
 # Jengu
 
-A Voice-First GitHub AI Assistant.
+A GitHub Voice AI Assistant.
 
 ![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
@@ -21,15 +21,40 @@ Jengu is an intelligent voice interface for exploring GitHub repositories. By in
 
 ## Technologies Used
 
-- **Framework**: Next.js App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Voice SDK**: Vapi Web SDK
-- **AI Agent Engine**: LangGraph.js / LangChain
-- **LLM**: Llama 3.3 (via DigitalOcean Serverless Inference)
-- **Data Visualization**: Recharts
-- **Authentication**: NextAuth.js (Auth.js)
-- **API Client**: Octokit
+<ul>
+  <li><b>Frontend:</b>
+    <img src="https://img.shields.io/badge/Next.js-black?logo=next.js" />
+    <img src="https://img.shields.io/badge/TypeScript-blue?logo=typescript" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css" />
+    <img src="https://img.shields.io/badge/Recharts-FF6384" />
+  </li>
+
+  <li><b>Backend:</b>
+    <img src="https://img.shields.io/badge/App_Router-black?logo=next.js" />
+  </li>
+
+  <li><b>AI Engine:</b>
+    <img src="https://img.shields.io/badge/LangGraph.js-4B0082" />
+    <img src="https://img.shields.io/badge/LangChain-00A67E" />
+  </li>
+
+  <li><b>LLM:</b>
+    <img src="https://img.shields.io/badge/Llama_3.3-orange" />
+    <img src="https://img.shields.io/badge/DigitalOcean-0080FF?logo=digitalocean" />
+  </li>
+
+  <li><b>Voice:</b>
+    <img src="https://img.shields.io/badge/Vapi_Web_SDK-purple" />
+  </li>
+
+  <li><b>Authentication:</b>
+    <img src="https://img.shields.io/badge/NextAuth.js-gray" />
+  </li>
+
+  <li><b>API Client:</b>
+    <img src="https://img.shields.io/badge/Octokit-black?logo=github" />
+  </li>
+</ul>
 
 ## Getting Started
 
@@ -57,3 +82,22 @@ npm run dev
 ```
 
 Open `http://localhost:3000` to interact with Jengu.
+
+## Developers
+
+<p align="center">
+    <a href="https://www.linkedin.com/in/reyan36/">
+        <img src="https://img.shields.io/badge/Reyan_Arshad-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="Reyan Arshad"/>
+    </a>
+    &nbsp;
+    <a href="https://www.linkedin.com/in/gevinm/">
+        <img src="https://img.shields.io/badge/Gevin_Madharha-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="Gevin Madharha"/>
+    </a>
+</p>
+
+
+
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
