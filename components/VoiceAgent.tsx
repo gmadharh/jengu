@@ -14,6 +14,7 @@ export function VoiceAgent({ onUiPayload }: VoiceAgentProps) {
     const { data: session } = useSession();
     const [isCallActive, setIsCallActive] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const [volumeLevel, setVolumeLevel] = useState(0);
     const vapiRegisteredRef = useRef(false);
 
@@ -24,6 +25,7 @@ export function VoiceAgent({ onUiPayload }: VoiceAgentProps) {
         vapi.on("call-start", () => {
             setIsCallActive(true);
             setHasError(false);
+            setErrorMessage("");
         });
 
         vapi.on("call-end", () => {
@@ -33,11 +35,21 @@ export function VoiceAgent({ onUiPayload }: VoiceAgentProps) {
 
         vapi.on("error", (e: any) => {
             // Unpack the exact Vapi error object for easier debugging
-            const errorMessage = e?.error?.message || e?.message || JSON.stringify(e);
-            console.error("Vapi Error:", errorMessage, e);
+            const rawErrorMsg = e?.error?.message || e?.message || JSON.stringify(e);
+            console.error("Vapi Error:", rawErrorMsg, e);
+            
             setIsCallActive(false);
             setVolumeLevel(0);
             setHasError(true);
+
+            // Provide human-readable specific errors if possible
+            if (rawErrorMsg.toLowerCase().includes("microphone") || rawErrorMsg.toLowerCase().includes("permission")) {
+                setErrorMessage("Microphone access denied. Please allow microphone permissions in your browser.");
+            } else if (rawErrorMsg.toLowerCase().includes("not found")) {
+                setErrorMessage("Assistant not found. Check your VAPI configuration.");
+            } else {
+                setErrorMessage("Connection failed. Jengu might be temporarily unavailable.");
+            }
         });
 
         // Listen for volume changes to drive the animation
@@ -103,6 +115,7 @@ export function VoiceAgent({ onUiPayload }: VoiceAgentProps) {
             } catch (err: any) {
                 console.error("Failed to start Vapi call", err);
                 setHasError(true);
+                setErrorMessage("Failed to start voice agent. Please try again.");
             }
         }
     };
@@ -169,17 +182,19 @@ export function VoiceAgent({ onUiPayload }: VoiceAgentProps) {
                 </button>
             </div>
 
-            <span className="mt-1 text-[10px] uppercase tracking-widest font-medium text-zinc-500">
+            <span className="mt-1 text-[10px] uppercase tracking-widest font-medium transition-colors duration-300">
                 {!session?.accessToken
-                    ? "Requires Auth"
-                    : isCallActive
-                    ? "Live"
-                    : "Tap to Speak"}
+                    ? <span className="text-zinc-500">Requires Auth</span>
+                    : !isCallActive
+                    ? <span className="text-zinc-500">Tap to Speak</span>
+                    : volumeLevel > 0.05
+                    ? <span className="text-amber-500 animate-pulse">Listening...</span>
+                    : <span className="text-teal-500">Live</span>}
             </span>
 
             {hasError && (
-                <span className="mt-2 text-xs text-red-400">
-                    Connection failed. Check console.
+                <span className="mt-2 text-xs text-red-400 text-center px-4">
+                    {errorMessage || "Connection failed. Check console."}
                 </span>
             )}
         </div>
